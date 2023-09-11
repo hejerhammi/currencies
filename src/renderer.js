@@ -1,5 +1,4 @@
 import Dexie from "https://unpkg.com/dexie@latest/dist/modern/dexie.mjs";
-
 let select1 = document.querySelector("#select1");
 let select2 = document.querySelector("#select2");
 let infos;
@@ -8,18 +7,17 @@ let input2 = document.querySelector("#nb2");
 let btnClass = document.querySelector("#class");
 let btnConvert = document.querySelector("#convert");
 
-const db = new Dexie("currencies");
 
-//////////////////utiliser API pour récupérer les taux/////////////////////
+// extraire les informations de conversion de l'api et les mettre dans un tableau
 fetch("https://api.frankfurter.app/latest")
-    .then((data) => data.json())
-    .then((data) => {
-        infos = Object.entries(data);
-        infos = infos[3][1];
-        let monTab = Object.keys(infos).map((cle) => {
-            return [infos[cle].toFixed(3), cle];
-        });
-        ///////////////////Notification///////////////////////
+.then((data) => data.json())
+.then((data) => {
+    infos = Object.entries(data);
+    infos = infos[3][1];
+    let monTab = Object.keys(infos).map((cle) => {
+        return [infos[cle].toFixed(3), cle];
+    });
+    ///////////////////Notification///////////////////////
         // console.log(monTab);
         for (let i = 0; i < monTab.length; i++) {
             select1.innerHTML +=
@@ -46,20 +44,20 @@ fetch("https://api.frankfurter.app/latest")
                                     monTab[i][0],
                             },
                             { icon: "bell.svg" }
-                        ).onclick = function () {
-                            window.focus();
-                            this.close();
-                        };
-                    }, 10000);
-                } else if (monTab[i][0] < 1.1039) {
-                    setTimeout(() => {
-                        new Notification(
-                            "currencies",
-                            {
-                                body:
+                            ).onclick = function () {
+                                window.focus();
+                                this.close();
+                            };
+                        }, 10000);
+                    } else if (monTab[i][0] < 1.1039) {
+                        setTimeout(() => {
+                            new Notification(
+                                "currencies",
+                                {
+                                    body:
                                     "le taux du Dollar américain'USD' a diminué Sa valeur actuelle est: " +
                                     monTab[i][0],
-                            },
+                                },
                             { icon: "bell.svg" }
                         ).onclick = function () {
                             window.focus();
@@ -72,12 +70,12 @@ fetch("https://api.frankfurter.app/latest")
                             "currencies",
                             {
                                 body:
-                                    "le taux du Dollar américain'USD' est le meme Sa valeur actuelle est: " +
-                                    monTab[i][0],
+                                "le taux du Dollar américain'USD' est le meme Sa valeur actuelle est: " +
+                                monTab[i][0],
                             },
                             { icon: "bell.svg" }
-                        ).onclick = function () {
-                            window.focus();
+                            ).onclick = function () {
+                                window.focus();
                             this.close();
                         };
                     }, 10000);
@@ -89,30 +87,32 @@ fetch("https://api.frankfurter.app/latest")
                 "classement.html",
                 "classement des taux",
                 `width=${600}, height=${1000}`
-            );
-            nouvelleFenetre.addEventListener("load", () => {
-                nouvelleFenetre.postMessage(
-                    { type: "infos", data: monTab },
-                    "*"
                 );
+                nouvelleFenetre.addEventListener("load", () => {
+                    nouvelleFenetre.postMessage(
+                        { type: "infos", data: monTab },
+                        "*"
+                        );
+                    });
+                });
             });
-        });
-    });
-
-//////////////////convertir taux/////////////////////////
-btnConvert.addEventListener("click", () => {
-    let value1 = input1.value;
-    if (select1.value != select2.value) {
-        const host = "api.frankfurter.app";
-        fetch(
-            `https://${host}/latest?amount=${value1}&from=${select1.value}&to=${select2.value}`
-        )
-            .then((val) => val.json())
-            .then(async (val) => {
-                input2.value = Object.values(val.rates)[0];
-                //console.log(Object.values(val.rates)[0]);
-
-                ///////////////////utiliser la base de données/////////////////////
+            
+            //////////////////convertir taux/////////////////////////
+            btnConvert.addEventListener("click", () => {
+                let value1 = input1.value;
+                if (select1.value != select2.value) {
+                    const host = "api.frankfurter.app";
+                    fetch(
+                        `https://${host}/latest?amount=${value1}&from=${select1.value}&to=${select2.value}`
+                        )
+                        .then((val) => val.json())
+                        .then(async (val) => {
+                            input2.value = Object.values(val.rates)[0];
+                            //console.log(Object.values(val.rates)[0]);
+                            
+                            ///////////////////utiliser la base de données/////////////////////
+                
+                const db = new Dexie("currencies");
                 db.version(1).stores({
                     currencie: "++id,choice1,choice2,amount,convert",
                 });

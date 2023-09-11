@@ -11,12 +11,16 @@ const createWindow = () => {
     const mainWindow = new BrowserWindow({
         width: 800,
         height: 600,
+        icon:"../src/img/currency-exchange.svg",
         webPreferences: {
             nodeIntegration: false, // Ne pas activer l'intégration Node.js
             contextIsolation: true, // Activer l'isolation du contexte pour empêcher l'évaluation dynamique du code
             sandbox: true, // Activer le bac à sable pour renforcer la sécurité
+            webSecurity: true,
             // Définir une politique de sécurité du contenu pour empêcher l'évaluation dynamique du code
             // et limiter les sources autorisées pour les ressources
+
+            //Ce CSP permet de charger du contenu uniquement à partir de la même origine ("'self'") et à partir de la source "https://trustedscripts.example.com" pour les scripts.
             contentSecurityPolicy:
                 "default-src 'self'; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline'; img-src 'self'",
 
@@ -56,16 +60,3 @@ app.on("activate", () => {
     }
 });
 
-// In this file you can include the rest of your app's specific main process
-// code. You can also put them in separate files and import them here.
-/*ipcMain.on("get-Infos", (e) => {
-    axios
-        .get("https://theforexapi.com/api/latest?base=USD")
-        .then((reponse) => {
-            // console.log(reponse.data);
-            e.sender.send("update-infos", reponse.data.rates);
-            //console.log(reponse.data.rates);
-        })
-        .catch((err) => console.log("erreur"));
-});
-*/
